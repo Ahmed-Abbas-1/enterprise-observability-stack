@@ -94,6 +94,54 @@ echo '{"app": "Test-Service", "message": "The Enterprise Observability Stack is 
 
 Navigate to http://localhost:5601, create a Data View for enterprise-logs-*, and start exploring your data in the Discover tab.
 
+
+## 🔗 Advanced Integration: Docker GELF Logging
+
+This section demonstrates how to seamlessly route logs from an external Multi-Tier architecture (Nginx & Node.js) directly into the ELK stack without modifying any application source code. This is achieved using Docker's native `gelf` logging driver.
+
+### Step 1: Prepare Logstash for GELF
+Configure Logstash to listen for incoming Docker logs via UDP. Update `logstash.conf` to include the `gelf` input plugin:
+
+```text
+input {
+  gelf {
+    port => 12201
+  }
+}
+
+```
+Ensure port 12201:12201/udp is exposed in the ELK docker-compose.yml.
+
+### Step 2: Configure the External Application
+In the `docker-compose.yml` of your target application (e.g., the Nginx Load Balancer), override the default json-file logger by adding the `gelf` logging driver:
+
+```yaml
+  nginx:
+    image: nginx:latest
+    # ... other configurations ...
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "nginx-loadbalancer"
+```
+
+### Step 3: Traffic Simulation & Stress Testing
+To verify the pipeline, a stress test was executed against the load balancer using a simple Bash loop to generate 100 concurrent requests:
+
+```bash
+for i in {1..100}; do curl -s http://localhost > /dev/null; echo "Request $i sent"; done
+
+```
+
+### Step 4: Centralized Visualization
+The architecture successfully streamed, parsed, and visualized the traffic in real-time within Kibana. The dashboard below illustrates the traffic spike and the successfully parsed GELF payload.
+
+<p align="center">
+  <img src="assets/gelf-integration.png" width="100%" style="border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</p>
+
+
 **Architected by:** Ahmed Mohamed Abbas Bahij
 
 [![](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/ahmedabbas99)

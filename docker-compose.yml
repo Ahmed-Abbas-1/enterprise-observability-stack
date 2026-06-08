@@ -22,6 +22,7 @@ services:
       - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     ports:
       - "5000:5000/tcp"
+      - "12201:12201/udp"
     depends_on:
       - elasticsearch
     networks:
