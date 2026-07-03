@@ -14,7 +14,12 @@ A production-grade Centralized Logging and Observability platform utilizing the 
 ├── logstash/
 │   └── logstash.conf      # TCP input and JSON parsing configurations
 ├── assets/
-│   └── kibana-log.png     # Live ingestion proof of concept
+│   ├── discover.png
+│   ├── docker-ps.png
+│   ├── docker-stats.png
+│   ├── gelf-integration.png
+│   ├── kibana-index.png
+│   └── project-diagram.png
 ├── docker-compose.yml     # Orchestrates the ELK stack & virtual networks
 └── README.md              # Project documentation
 
@@ -24,23 +29,11 @@ A production-grade Centralized Logging and Observability platform utilizing the 
 ## 🏗️ System Architecture
 
 The logging pipeline is engineered to decouple log ingestion from storage. Logstash acts as the primary buffer and parser, transforming raw JSON logs before persisting them into Elasticsearch for rapid querying via Kibana.
-
-```mermaid
-graph LR
-    App([💻 External Apps / Services]) -->|TCP :5000| Logstash[⚙️ Logstash Pipeline]
-    Logstash -->|Parsed JSON| ES[(🗄️ Elasticsearch Core)]
-    Kibana[📊 Kibana UI] -.->|Queries :9200| ES
-    Admin([👤 Cloud Architect]) -->|HTTP :5601| Kibana
-
-    classDef elastic fill:#00bfb3,stroke:#005a5e,stroke-width:2px,color:white;
-    classDef logstash fill:#fec514,stroke:#a67c00,stroke-width:2px;
-    classDef kibana fill:#e8488b,stroke:#8c1b4f,stroke-width:2px,color:white;
-
-    class ES elastic;
-    class Logstash logstash;
-    class Kibana kibana;
-
-```
+<p align="center">
+  <img src="./assets/project-diagram.png" width="100%">
+  <br>
+  <em><b>Figure 1:</b> System Architecture Diagram </em>
+</p>
 
 ## 💡 Key Features & Technical Decisions
 
